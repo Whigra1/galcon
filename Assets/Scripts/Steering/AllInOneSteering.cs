@@ -11,21 +11,15 @@ public class AllInOneSteering : MonoBehaviour
     public float avoidanceForce = 20;
     public float separationForce = 20;
     public float maxAllowedForce = 0.2f;
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
-    {
-        
-    }
 
-    // Update is called once per frame
     private void Update()
     {
         var steering = Vector3.zero;
 
         if (seek && seekEnabled) steering += Seek();
         // if (!seek && seekEnabled) steering += FollowCursor();
-        steering += Avoid();
         steering += Separate();
+        steering += Avoid();
         _prevVelocity = transform.position;
         transform.position += (steering + Velocity) * Time.deltaTime;
         var angle = Mathf.Atan2(steering.y, steering.x) * Mathf.Rad2Deg;
@@ -41,43 +35,44 @@ public class AllInOneSteering : MonoBehaviour
     private Vector3 Avoid()
     {
         var ahead = Velocity.normalized * maxViewDistance;
-        var hit = Physics2D.Raycast(transform.position, ahead, maxViewDistance);
-        // Debug.DrawRay(transform.position, Velocity.normalized * maxViewDistance, Color.red);
-        // Debug.DrawRay(transform.position, Velocity*60, Color.magenta);
+        var hit = Physics2D.Raycast(transform.position, ahead, maxViewDistance, LayerMask.GetMask("Default"));
         if (!hit.collider) return Vector3.zero;
         if (hit.collider.gameObject == gameObject) return Vector3.zero;
         var planet = hit.collider.gameObject.GetComponent<Planet>();
+
         if (!planet) return Vector3.zero;
         var avoidance = (ahead + transform.position - planet.transform.position).normalized;
-        // Debug.DrawRay(planet.transform.position, (ahead + transform.position - planet.transform.position), Color.yellow);
-        // Debug.Log($"Velocity: {Velocity}/Velocity(norm): {Velocity.normalized}/Ahead: {ahead} / Ahead (with current pos): {transform.position + ahead} / Ahead - planet: {ahead - planet.transform.position }/ avoidance: {avoidance}");
         if (seek.transform.position == planet.transform.position)
         {
             return Vector3.zero;
         }
-        var distance = hit.distance;
-        Debug.DrawRay(transform.position, avoidance*avoidanceForce, Color.green);
-     
-        // if (distance < 5)
-        // {
-        //     return -steering + ((avoidance - -steering) / 2 - Velocity);
-        //     return Vector3.ClampMagnitude(-steering, avoidanceForce*2);
-        // }
-        return avoidance.normalized * avoidanceForce; // Vector3.ClampMagnitude(avoidance - Velocity, avoidanceForce);
+        Debug.DrawRay(transform.position, avoidance*planet.size*avoidanceForce, Color.green);
+        return avoidance.normalized * avoidanceForce;
     }
 
     private Vector3 Separate()
     {
-        var nearbyTriangles = Physics2D.OverlapCircleAll(transform.position, 10, LayerMask.GetMask("Default"));
-        // Debug.Log($"Nearby triangles: {nearbyTriangles.Length}");
+        var nearbyTriangles = Physics2D.OverlapCircleAll(transform.position, 10, LayerMask.GetMask("Triangle"));
+        var nearbyPlanets = Physics2D.OverlapCircleAll(transform.position, 10, LayerMask.GetMask("Default"));
         var sum = Vector3.zero;
         var desiredDistance = 20;
         var count = 0;
-        foreach (var collider in nearbyTriangles)
+        foreach (var triangleCollider in nearbyTriangles)
         {
-            var nearObjectWithCollider = collider.gameObject;
+            var nearObjectWithCollider = triangleCollider.gameObject;
             if (nearObjectWithCollider == gameObject) continue;
             if (nearObjectWithCollider.tag != "Triangle") continue;
+            var distance = Vector3.Distance(transform.position, nearObjectWithCollider.transform.position);
+            if (distance > desiredDistance) continue;
+            var direction = (transform.position - nearObjectWithCollider.transform.position).normalized;
+            sum += direction * (1 / distance);
+            count++;
+        }
+        foreach (var planetCollider in nearbyPlanets)
+        {
+            var nearObjectWithCollider = planetCollider.gameObject;
+            if (nearObjectWithCollider == gameObject) continue;
+            if (nearObjectWithCollider.tag != "Planet") continue;
             var distance = Vector3.Distance(transform.position, nearObjectWithCollider.transform.position);
             if (distance > desiredDistance) continue;
             var direction = (transform.position - nearObjectWithCollider.transform.position).normalized;
