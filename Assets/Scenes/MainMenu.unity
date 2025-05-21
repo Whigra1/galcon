@@ -623,9 +623,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   mockHttpProvider: {fileID: 1147949073}
   playerNamePrefab: {fileID: 405539700}
+  connectionToken: {fileID: 1406919743}
   playersParentComponent: {fileID: 146108779}
   players: []
+  startButton: {fileID: 1467493569}
   onlineMenu: {fileID: 1501677546}
+  signalConnector: {fileID: 115131274}
 --- !u!1 &337621982
 GameObject:
   m_ObjectHideFlags: 0
@@ -3653,7 +3656,7 @@ GameObject:
   - component: {fileID: 1406919744}
   - component: {fileID: 1406919743}
   m_Layer: 5
-  m_Name: Text (TMP)
+  m_Name: ConnectionTokenInput
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

@@ -28,6 +28,7 @@ public class GameMenu : MonoBehaviour
     
     public void BackToMainMenu()
     {
+        RoomInfo.Clear();
         SceneManager.LoadScene(0);
     }
     

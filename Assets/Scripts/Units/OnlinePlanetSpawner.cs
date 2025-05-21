@@ -32,10 +32,7 @@ public class OnlinePlanetSpawner : PlanetSpawnerBase
         {
             var planets = new List<Planet>();
             var planetWrapper = ParsePlanetsFromJson(planetJson);
-            if (unityContext is null)
-            {
-                unityContext = SynchronizationContext.Current;
-            }
+            unityContext ??= SynchronizationContext.Current;
             unityContext.Post(_ =>
             {
                 foreach (var planetDto in planetWrapper.planets)
@@ -44,6 +41,7 @@ public class OnlinePlanetSpawner : PlanetSpawnerBase
                 }
                 taskCompletionSource.SetResult(planets);
             }, null);
+            connection.Remove("Planets");
         });
         await connection.InvokeAsync("GetPlanets");
         return await taskCompletionSource.Task;
@@ -84,5 +82,4 @@ public class OnlinePlanetSpawner : PlanetSpawnerBase
         var parsed = Enum.TryParse<Color>(planetDto.color, out var color);
         return parsed ? color : Color.white;
     }
-
 }

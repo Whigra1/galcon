@@ -31,7 +31,7 @@ public class MouseController : MonoBehaviour
             if (r.Length == 0) return;
             _clickedObject = r[0].gameObject;
             var planet1 = _clickedObject.GetComponent<Planet>();
-            if (planet1.ownerPlayer.id != PlayerPrefs.GetInt("id"))
+            if (planet1.ownerPlayer.id != UserData.Id)
             {
                 _clickedObject = null;
                 return;

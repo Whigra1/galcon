@@ -9,33 +9,13 @@ public class MockHttpProvider : MonoBehaviour, IGameHttpApiProvider
 
     public SignalConnectorBase signalConnector;
     
-    private static ApiRequestResult<GameLobbyDto> mockLobby = new ApiRequestResult<GameLobbyDto>()
-    {
-        Data = new GameLobbyDto
-        {
-            ConnectToken = "token",
-            Players = new List<PlayerDto>()
-            {
-                new()
-                {
-                    Id = 1,
-                    Name = "Player1", 
-                },
-                new()
-                {
-                    Id = 2,
-                    Name = "Player2", 
-                },
-            }
-        }, 
-    };
-    
     public async Task<ApiRequestResult<UserInfoDto>> Register(string login, string password)
     {
         var taskCompletionSource = new TaskCompletionSource<ApiRequestResult<UserInfoDto>>();
         var connection = await signalConnector.GetConnection();
         connection.On<string, int>("Registered", (token, id) =>
         {
+            connection.Remove("Registered");
             taskCompletionSource.SetResult(new ApiRequestResult<UserInfoDto>
             {
                 Data = new UserInfoDto
@@ -58,6 +38,7 @@ public class MockHttpProvider : MonoBehaviour, IGameHttpApiProvider
         var connection = await signalConnector.GetConnection();
         connection.On<string, int>("LoggedIn", (token, id) =>
         {
+            connection.Remove("LoggedIn");
             taskCompletionSource.SetResult(new ApiRequestResult<UserInfoDto>
             {
                 Data = new UserInfoDto
@@ -82,23 +63,84 @@ public class MockHttpProvider : MonoBehaviour, IGameHttpApiProvider
         };
     }
 
-    public async Task<ApiRequestResult<GameLobbyDto>> CreateGameRoom(string name)
+    public async Task<ApiRequestResult<GameLobbyDto>> CreateGameRoom(string roomName)
     {
-        return mockLobby;
+        var taskCompletionSource = new TaskCompletionSource<ApiRequestResult<GameLobbyDto>>();
+        var connection = await signalConnector.GetConnection();
+        connection.On<int, string>("RoomCreated", (id, invitationCode) =>
+        {
+            connection.Remove("RoomCreated");
+            taskCompletionSource.SetResult(new ApiRequestResult<GameLobbyDto>
+            {
+                Data = new GameLobbyDto
+                {
+                    RoomId = id,
+                    ConnectToken = invitationCode,
+                },
+                ErrorMessage = invitationCode.Length > 4 ? "Failed to create room" : "",
+            });
+        });
+        
+        await connection.InvokeAsync("CreateRoom", roomName, UserData.Id);
+        
+        return await taskCompletionSource.Task;
     }
 
     public async Task<ApiRequestResult<GameLobbyDto>> JoinGameRoom(string token)
     {
-        return mockLobby;
+        var taskCompletionSource = new TaskCompletionSource<ApiRequestResult<GameLobbyDto>>();
+        var connection = await signalConnector.GetConnection();
+        connection.On<int>("JoinedRoomPersonal", (roomId) =>
+        {
+            connection.Remove("JoinedRoomPersonal");
+            taskCompletionSource.SetResult(new ApiRequestResult<GameLobbyDto>
+            {
+                Data = new GameLobbyDto
+                {
+                    RoomId = roomId,
+                    ConnectToken = token,
+                },
+                ErrorMessage = roomId < 0 ? "Failed to join room" : "",
+            });
+        });
+        
+        await connection.InvokeAsync("JoinRoom", token, UserData.Id);
+        
+        return await taskCompletionSource.Task;
     }
 
     public async Task<ApiRequestResult<GameLobbyDto>> GetRoomInfo(int roomId)
     {
-        return mockLobby;
+        var taskCompletionSource = new TaskCompletionSource<ApiRequestResult<GameLobbyDto>>();
+        var connection = await signalConnector.GetConnection();
+        connection.On<string>("RoomInfo", roomJson =>
+        {
+            connection.Remove("RoomInfo");
+            var roomDto = ParseRoomDtoFromJson(roomJson);
+            taskCompletionSource.SetResult(new ApiRequestResult<GameLobbyDto>
+            {
+                Data = new GameLobbyDto
+                {
+                    RoomId = roomId,
+                    ConnectToken = roomDto.invitationCode,
+                    Players = roomDto.users
+                },
+                ErrorMessage = roomId < 0 ? "Failed to join room" : "",
+            });
+        });
+        
+        await connection.InvokeAsync("GetRoomInfo", roomId);
+        
+        return await taskCompletionSource.Task;
     }
 
     public void LeaveGameRoom(int id)
     {
         throw new System.NotImplementedException();
+    }
+
+    private RoomDto ParseRoomDtoFromJson(string roomJson)
+    {
+        return JsonUtility.FromJson<RoomDto>(roomJson);
     }
 }

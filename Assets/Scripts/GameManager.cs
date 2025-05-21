@@ -4,7 +4,6 @@ using System.Threading.Tasks;
 using TMPro;
 using UnityEngine;
 using Microsoft.AspNetCore.SignalR.Client;
-using Unity.VisualScripting;
 
 public class GameManager : MonoBehaviour
 {
@@ -15,6 +14,7 @@ public class GameManager : MonoBehaviour
     public PlanetSpawnerBase planetSpawner;
     public SignalConnectorBase signalConnector;
     private SynchronizationContext unityContext;
+    private HubConnection _connection;
     private void Awake()
     {
         unityContext = SynchronizationContext.Current;
@@ -28,12 +28,12 @@ public class GameManager : MonoBehaviour
 
     private async void SubscribeToEvents()
     {
-        var connection = await signalConnector.GetConnection();
-        connection.On<int, int, int>("SendShips", (from, to, amount) =>
+        _connection = await signalConnector.GetConnection();
+        _connection.On<int, int, int>("SendShips", (from, to, amount) =>
         {
             var planet1 = _planetRegistry.FindPlanetById(from);
             var planet2 = _planetRegistry.FindPlanetById(to);
-            unityContext.Post(_ => planet1.SpawnShips(planet2.transform, amount), null); 
+            unityContext.Post(_ => planet1.SpawnShips(planet2.transform, amount), null);
         });
     }
     
@@ -60,7 +60,7 @@ public class GameManager : MonoBehaviour
     {
         _isGameRunning = false; // Stop the coroutine
         WinMenu.SetActive(true);
-        WinText.text = $"Player {winner.id} wins the game!";
+        WinText.text = $"Player {winner.Name} wins the game!";
     }
 
     public void AddPlanet(Planet planet)
@@ -68,4 +68,8 @@ public class GameManager : MonoBehaviour
         _planetRegistry.AddPlanet(planet);
     }
 
+    private void OnDestroy()
+    {
+        _connection.Remove("SendShips");
+    }
 }

@@ -12,9 +12,25 @@ public class OnlineMenuScript : MonoBehaviour
     public GameObject gameLobby;
     public TMP_Text errorText;
     
-    public void OnCreateNewGame()
+    public async void OnCreateNewGame()
     {
-        mockHttpProvider.CreateGameRoom(gameNameInput.text);
+        var response = await mockHttpProvider.CreateGameRoom(gameNameInput.text);
+        if (string.IsNullOrEmpty(response.ErrorMessage))
+        {
+            errorText.text = "";
+            gameNameInput.text = "";
+            
+            RoomInfo.Id = response.Data.RoomId;
+            RoomInfo.Name = gameNameInput.text;
+            RoomInfo.InvitatationToken = response.Data.ConnectToken;
+            RoomInfo.IsHost = true;
+
+            gameObject.SetActive(false);
+            gameLobby.SetActive(true);
+            return;
+        }
+        
+        errorText.text = response.ErrorMessage;
     }
 
     public async void OnConnect()
@@ -26,19 +42,22 @@ public class OnlineMenuScript : MonoBehaviour
         }
         
         var response = await mockHttpProvider.JoinGameRoom(tokenInput.text);
-        if (!string.IsNullOrEmpty(response.ErrorMessage))
+        if (!string.IsNullOrEmpty(response.ErrorMessage) || response.Data.RoomId < 0)
         {
             errorText.text = response.ErrorMessage;
+            return;
         }
         
         errorText.text = "";
         gameNameInput.text = "";
         tokenInput.text = "";
         
-        PlayerPrefs.SetString("connection_token", response.Data.ConnectToken);
-        PlayerPrefs.SetString("room_id", response.Data.RoomId);
+        RoomInfo.Id = response.Data.RoomId;
+        RoomInfo.Name = gameNameInput.text;
+        RoomInfo.InvitatationToken = response.Data.ConnectToken;
+        RoomInfo.IsHost = false;
+        
         gameObject.SetActive(false);
         gameLobby.SetActive(true);
-        
     }
 }

@@ -1,5 +1,11 @@
-﻿public class PlayerDto
+﻿using UnityEngine;
+
+[System.Serializable]
+public class PlayerDto
 {
-    public int Id { get; set; }
-    public string Name { get; set; }
+    [SerializeField] public int id;
+    [SerializeField] public string name = "";
+
+    public int Id => id;
+    public string Name => name;
 }

@@ -12,25 +12,30 @@ public class UserInputMenu : MonoBehaviour
 
     public void Start()
     {
-        if (PlayerPrefs.HasKey("token"))
-        {
-            gameObject.SetActive(false);
-            MainMenu.SetActive(true);
-        }
-        else
+        if (string.IsNullOrEmpty(UserData.Token))
         {
             gameObject.SetActive(true);
             MainMenu.SetActive(false);
+        }
+        else
+        {
+            gameObject.SetActive(false);
+            MainMenu.SetActive(true);
         }
     }
 
     public async void OnLogin ()
     {
         var response = await GameHttpApiProvider.Login(login.text, password.text);
-        PlayerPrefs.SetString("token", response.Data.Token);
-        PlayerPrefs.SetString("login", login.text);
-        PlayerPrefs.SetInt("id", response.Data.Id);
-        PlayerPrefs.Save();
+
+        if (response.Data.Id < 0)
+        {
+            return;
+        }
+        
+        UserData.Id = response.Data.Id;
+        UserData.Token = response.Data.Token;
+        UserData.Name = login.text;
         gameObject.SetActive(false);
         MainMenu.SetActive(true);
     }
@@ -38,10 +43,9 @@ public class UserInputMenu : MonoBehaviour
     public async void OnRegister()
     {
         var response = await GameHttpApiProvider.Register(login.text, password.text);
-        PlayerPrefs.SetString("token", response.Data.Token);
-        PlayerPrefs.SetString("login", login.text);
-        PlayerPrefs.SetInt("id", response.Data.Id);
-        PlayerPrefs.Save();
+        UserData.Id = response.Data.Id;
+        UserData.Token = response.Data.Token;
+        UserData.Name = login.text;
         gameObject.SetActive(false);
         MainMenu.SetActive(true);
     }
