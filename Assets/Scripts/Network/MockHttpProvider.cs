@@ -3,13 +3,13 @@ using System.Threading.Tasks;
 using Network;
 using UnityEngine;
 using Microsoft.AspNetCore.SignalR.Client;
-public class MockHttpProvider : MonoBehaviour, IGameHttpApiProvider
+public class MockHttpProvider : GameHttpProviderBase, IGameHttpApiProvider
 {
     // Start is called once before the first execution of Update after the MonoBehaviour is created
 
     public SignalConnectorBase signalConnector;
     
-    public async Task<ApiRequestResult<UserInfoDto>> Register(string login, string password)
+    public override async Task<ApiRequestResult<UserInfoDto>> Register(string login, string password)
     {
         var taskCompletionSource = new TaskCompletionSource<ApiRequestResult<UserInfoDto>>();
         var connection = await signalConnector.GetConnection();
@@ -23,7 +23,8 @@ public class MockHttpProvider : MonoBehaviour, IGameHttpApiProvider
                     Id = id,
                     Token = token,
                     Name = login,
-                }
+                },
+                ErrorMessage = id < 0 ? "Failed to register" : "",
             });
         });
         
@@ -32,7 +33,7 @@ public class MockHttpProvider : MonoBehaviour, IGameHttpApiProvider
         return await taskCompletionSource.Task;
     }
 
-    public async Task<ApiRequestResult<UserInfoDto>> Login(string login, string password)
+    public override async Task<ApiRequestResult<UserInfoDto>> Login(string login, string password)
     {
         var taskCompletionSource = new TaskCompletionSource<ApiRequestResult<UserInfoDto>>();
         var connection = await signalConnector.GetConnection();
@@ -46,7 +47,8 @@ public class MockHttpProvider : MonoBehaviour, IGameHttpApiProvider
                     Id = id,
                     Token = token,
                     Name = login,
-                }
+                },
+                ErrorMessage = id < 0 ? "Failed to login" : "",
             });
         });
         
@@ -55,7 +57,7 @@ public class MockHttpProvider : MonoBehaviour, IGameHttpApiProvider
         return await taskCompletionSource.Task;
     }
 
-    public async Task<ApiRequestResult<bool>> Logout()
+    public override async Task<ApiRequestResult<bool>> Logout()
     {
         return new ApiRequestResult<bool>()
         {
@@ -63,7 +65,7 @@ public class MockHttpProvider : MonoBehaviour, IGameHttpApiProvider
         };
     }
 
-    public async Task<ApiRequestResult<GameLobbyDto>> CreateGameRoom(string roomName)
+    public override async Task<ApiRequestResult<GameLobbyDto>> CreateGameRoom(string roomName)
     {
         var taskCompletionSource = new TaskCompletionSource<ApiRequestResult<GameLobbyDto>>();
         var connection = await signalConnector.GetConnection();
@@ -74,7 +76,7 @@ public class MockHttpProvider : MonoBehaviour, IGameHttpApiProvider
             {
                 Data = new GameLobbyDto
                 {
-                    RoomId = id,
+                    RoomId = "",
                     ConnectToken = invitationCode,
                 },
                 ErrorMessage = invitationCode.Length > 4 ? "Failed to create room" : "",
@@ -86,7 +88,7 @@ public class MockHttpProvider : MonoBehaviour, IGameHttpApiProvider
         return await taskCompletionSource.Task;
     }
 
-    public async Task<ApiRequestResult<GameLobbyDto>> JoinGameRoom(string token)
+    public override async Task<ApiRequestResult<GameLobbyDto>> JoinGameRoom(string token)
     {
         var taskCompletionSource = new TaskCompletionSource<ApiRequestResult<GameLobbyDto>>();
         var connection = await signalConnector.GetConnection();
@@ -97,7 +99,7 @@ public class MockHttpProvider : MonoBehaviour, IGameHttpApiProvider
             {
                 Data = new GameLobbyDto
                 {
-                    RoomId = roomId,
+                    RoomId = "",
                     ConnectToken = token,
                 },
                 ErrorMessage = roomId < 0 ? "Failed to join room" : "",
@@ -109,7 +111,7 @@ public class MockHttpProvider : MonoBehaviour, IGameHttpApiProvider
         return await taskCompletionSource.Task;
     }
 
-    public async Task<ApiRequestResult<GameLobbyDto>> GetRoomInfo(int roomId)
+    public override async Task<ApiRequestResult<GameLobbyDto>> GetRoomInfo(string roomId)
     {
         var taskCompletionSource = new TaskCompletionSource<ApiRequestResult<GameLobbyDto>>();
         var connection = await signalConnector.GetConnection();
@@ -121,11 +123,11 @@ public class MockHttpProvider : MonoBehaviour, IGameHttpApiProvider
             {
                 Data = new GameLobbyDto
                 {
-                    RoomId = roomId,
+                    RoomId = "",
                     ConnectToken = roomDto.invitationCode,
-                    Players = roomDto.users
+                    Players = roomDto.members
                 },
-                ErrorMessage = roomId < 0 ? "Failed to join room" : "",
+                ErrorMessage = string.IsNullOrEmpty(roomId) ? "Failed to join room" : "",
             });
         });
         
@@ -134,7 +136,7 @@ public class MockHttpProvider : MonoBehaviour, IGameHttpApiProvider
         return await taskCompletionSource.Task;
     }
 
-    public void LeaveGameRoom(int id)
+    public override void LeaveGameRoom(string id)
     {
         throw new System.NotImplementedException();
     }

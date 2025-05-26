@@ -6,7 +6,7 @@ public class OnlineMenuScript : MonoBehaviour
 {
     // Start is called once before the first execution of Update after the MonoBehaviour is created
 
-    public MockHttpProvider mockHttpProvider;
+    public GameHttpProviderBase mockHttpProvider;
     public TMP_InputField gameNameInput;
     public TMP_InputField tokenInput;
     public GameObject gameLobby;
@@ -42,7 +42,7 @@ public class OnlineMenuScript : MonoBehaviour
         }
         
         var response = await mockHttpProvider.JoinGameRoom(tokenInput.text);
-        if (!string.IsNullOrEmpty(response.ErrorMessage) || response.Data.RoomId < 0)
+        if (!string.IsNullOrEmpty(response.ErrorMessage) || string.IsNullOrEmpty(response.Data.RoomId))
         {
             errorText.text = response.ErrorMessage;
             return;

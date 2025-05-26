@@ -1,6 +1,6 @@
 ﻿public static class RoomInfo
 {
-    public static int Id { get; set; }
+    public static string Id { get; set; }
     public static string Name { get; set; }
     public static string InvitatationToken { get; set; }
     
@@ -8,7 +8,7 @@
 
     public static void Clear()
     {
-        Id = 0;
+        Id = "";
         Name = "";
         InvitatationToken = "";
         IsHost = false;

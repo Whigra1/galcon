@@ -3,7 +3,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using TMPro;
 using UnityEngine;
-using Microsoft.AspNetCore.SignalR.Client;
 
 public class GameManager : MonoBehaviour
 {
@@ -14,7 +13,6 @@ public class GameManager : MonoBehaviour
     public PlanetSpawnerBase planetSpawner;
     public SignalConnectorBase signalConnector;
     private SynchronizationContext unityContext;
-    private HubConnection _connection;
     private void Awake()
     {
         unityContext = SynchronizationContext.Current;
@@ -24,16 +22,24 @@ public class GameManager : MonoBehaviour
         _planetRegistry.AddPlanets(await planetSpawner.SpawnPlanets());
         SubscribeToEvents();
         StartCoroutine(CheckGameEndConditionCoroutine());
+        signalConnector.Ready(UserData.Id, RoomInfo.Id);
     }
 
     private async void SubscribeToEvents()
     {
-        _connection = await signalConnector.GetConnection();
-        _connection.On<int, int, int>("SendShips", (from, to, amount) =>
+        signalConnector.OnSendShips(async (from, to, amount) =>
         {
             var planet1 = _planetRegistry.FindPlanetById(from);
             var planet2 = _planetRegistry.FindPlanetById(to);
             unityContext.Post(_ => planet1.SpawnShips(planet2.transform, amount), null);
+        });
+        
+        signalConnector.OnGameStarted(isOk =>
+        {
+            if (isOk)
+            {
+                GameState.IsGameRunning = true;
+            }
         });
     }
     
@@ -70,6 +76,6 @@ public class GameManager : MonoBehaviour
 
     private void OnDestroy()
     {
-        _connection.Remove("SendShips");
+        signalConnector.RemoveGameManagerMethods();
     }
 }

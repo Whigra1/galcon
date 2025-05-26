@@ -30,6 +30,8 @@ public class Planet : MonoBehaviour
     
     void Update()
     {
+        if (!GameState.IsGameRunning) return;
+
         var delta = Time.deltaTime;
         GrowUpBuffer += delta * shipGrowsFactor * size;
         if (GrowUpBuffer > 1)

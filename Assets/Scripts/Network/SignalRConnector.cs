@@ -35,7 +35,48 @@ public class SignalRConnector : SignalConnectorBase
 
     public override void SendShips(int fromId, int toId, int amount)
     {
-        Debug.Log($"Sending ships from {fromId} to {toId} with amount {amount}");
         connection.InvokeAsync("SendShips", fromId, toId, amount);
+    }
+
+    public override void OnPlayerJoin(Action<string> callback)
+    {
+        
+    }
+
+    public override void OnPlayerLeft(Action<int, string> callback)
+    {
+    }
+
+    public override void OnLoadGame(Action<bool> callback)
+    {
+    }
+
+    public override void OnGameStarted(Action<bool> callback)
+    {
+    }
+
+    public override void OnSendShips(Action<int, int, int> callback)
+    {
+    }
+
+    public override void RemoveGameLobbyMethods()
+    {
+    }
+
+    public override void RemoveGameManagerMethods()
+    {
+    }
+
+    public override void StartGame()
+    {
+    }
+
+    public override void LeaveGame()
+    {
+        throw new NotImplementedException();
+    }
+
+    public override void Ready(int userId, string roomId)
+    {
     }
 }

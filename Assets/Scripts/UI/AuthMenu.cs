@@ -3,13 +3,13 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class UserInputMenu : MonoBehaviour
+public class AuthMenu : MonoBehaviour
 {
-    public MockHttpProvider GameHttpApiProvider;
+    public GameHttpProviderBase GameHttpApiProvider;
     public TMP_InputField login;
     public TMP_InputField password;
     public GameObject MainMenu;
-
+    public TMP_Text errorText;
     public void Start()
     {
         if (string.IsNullOrEmpty(UserData.Token))
@@ -30,12 +30,14 @@ public class UserInputMenu : MonoBehaviour
 
         if (response.Data.Id < 0)
         {
+            errorText.text = response.ErrorMessage;
             return;
         }
         
         UserData.Id = response.Data.Id;
         UserData.Token = response.Data.Token;
         UserData.Name = login.text;
+        errorText.text = response.ErrorMessage;
         gameObject.SetActive(false);
         MainMenu.SetActive(true);
     }
@@ -43,6 +45,11 @@ public class UserInputMenu : MonoBehaviour
     public async void OnRegister()
     {
         var response = await GameHttpApiProvider.Register(login.text, password.text);
+        if (response.Data.Id < 0)
+        {
+            errorText.text = response.ErrorMessage;
+            return;
+        }
         UserData.Id = response.Data.Id;
         UserData.Token = response.Data.Token;
         UserData.Name = login.text;

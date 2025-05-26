@@ -205,7 +205,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -150, y: 91.201}
+  m_AnchoredPosition: {x: -150, y: 131}
   m_SizeDelta: {x: 200, y: 26.0024}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &56988780
@@ -426,6 +426,50 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 146108779}
   m_CullTransparentMesh: 1
+--- !u!1 &207884598
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 207884601}
+  - component: {fileID: 207884599}
+  m_Layer: 0
+  m_Name: CalgonHttpProvider
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &207884599
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 207884598}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 243afdb2882147c2b2e9dca8997d7184, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!4 &207884601
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 207884598}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &251615848
 GameObject:
   m_ObjectHideFlags: 0
@@ -621,7 +665,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: acef931b723d8cc498c6bdf54f3b7161, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  mockHttpProvider: {fileID: 1147949073}
+  mockHttpProvider: {fileID: 207884599}
   playerNamePrefab: {fileID: 405539700}
   connectionToken: {fileID: 1406919743}
   playersParentComponent: {fileID: 146108779}
@@ -1768,10 +1812,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0306713a041b15e4cab5300281ddf01b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GameHttpApiProvider: {fileID: 1147949073}
+  GameHttpApiProvider: {fileID: 207884599}
   login: {fileID: 410313500}
   password: {fileID: 776571115}
   MainMenu: {fileID: 1660631987}
+  errorText: {fileID: 56988780}
 --- !u!1 &698764219
 GameObject:
   m_ObjectHideFlags: 0
@@ -4265,9 +4310,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1660631989}
-        m_TargetAssemblyTypeName: MainMenu, Assembly-CSharp
-        m_MethodName: StartGame
+      - m_Target: {fileID: 323921170}
+        m_TargetAssemblyTypeName: GameLobby, Assembly-CSharp
+        m_MethodName: OnStart
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -4515,7 +4560,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3751a26a8c4c0044eae1299c9a29634f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  mockHttpProvider: {fileID: 1147949073}
+  mockHttpProvider: {fileID: 207884599}
   gameNameInput: {fileID: 1301994178}
   tokenInput: {fileID: 1889688401}
   gameLobby: {fileID: 323921168}
@@ -6279,4 +6324,5 @@ SceneRoots:
   - {fileID: 1156085122}
   - {fileID: 1296677940}
   - {fileID: 1147949074}
+  - {fileID: 207884601}
   - {fileID: 115131275}
