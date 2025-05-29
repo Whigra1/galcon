@@ -5,7 +5,7 @@ public class CameraZoom : MonoBehaviour
     public Camera cameraToZoom; // Assign your camera here
     public float zoomSpeed = 2f; // How fast the zoom happens
     public float minOrthographicSize = 5f; // Minimum zoom
-    public float maxOrthographicSize = 70f; // Maximum zoom
+    public float maxOrthographicSize = 90f; // Maximum zoom
 
     void Update()
     {

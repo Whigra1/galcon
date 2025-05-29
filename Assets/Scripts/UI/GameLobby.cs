@@ -1,8 +1,13 @@
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
+using EventArgs;
 using TMPro;
 using UnityEngine;
 using Microsoft.AspNetCore.SignalR.Client;
+using Network.Signal;
+using Newtonsoft.Json.Linq;
 using Unity.VisualScripting;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
@@ -16,7 +21,8 @@ public class GameLobby : MonoBehaviour
     public List<TMP_Text> players = new();
     public Button startButton;
     public GameObject onlineMenu;
-    public SignalConnectorBase signalConnector;
+    public GameConnectorBase gameConnector;
+    public LobbyConnectorBase LobbyConnector;
     private SynchronizationContext unityContext;
     
     public void Awake()
@@ -31,30 +37,30 @@ public class GameLobby : MonoBehaviour
         var roomInfo = await mockHttpProvider.GetRoomInfo(RoomInfo.Id);
         connectionToken.text = $"Connection token: {roomInfo.Data.ConnectToken}";
         ShowPlayers(roomInfo.Data.Players ?? new List<PlayerDto>());
-        signalConnector.OnPlayerJoin(async playerName =>
+        await Task.WhenAll(
+            LobbyConnector.StartConnection(),
+            gameConnector.StartConnection()
+        );
+        await LobbyConnector.OnRoomUpdate(roomObj =>
         {
-            if (players.Find(p => p.text == playerName) != null) return;
-            var rInfo = await mockHttpProvider.GetRoomInfo(RoomInfo.Id);
+            var updateArgs = ((JObject) roomObj).ToObject<RoomUpdateArgs>();
             unityContext.Post(_ =>
             {
                 ClearPlayers();
-                ShowPlayers(rInfo.Data.Players ?? new List<PlayerDto>());
-            }, null);
-        });
-        
-        signalConnector.OnPlayerLeft(async (roomId, playerName) =>
-        {
-            var rInfo = await mockHttpProvider.GetRoomInfo(RoomInfo.Id);
-            unityContext.Post(_ =>
-            {
-                ClearPlayers();
-                ShowPlayers(rInfo.Data.Players ?? new List<PlayerDto>());
+                ShowPlayers(updateArgs.Members.Select(m => new PlayerDto
+                {
+                    userId = m.UserId,
+                    userName = m.UserName
+                }).ToList());
             }, null);
         });
 
-        signalConnector.OnLoadGame(isOk =>
+        gameConnector.OnGameStarted(jObj =>
         {
-            if (isOk) unityContext.Post(_ => SceneManager.LoadScene(1), null);
+            var res = ((JObject) jObj).ToObject<GameStartedArgs>();
+            RoomInfo.Planets = res.Planets;
+            RoomInfo.Players = res.Players;
+            unityContext.Post(_ => SceneManager.LoadScene(1), null);
         });
     }
 
@@ -87,29 +93,26 @@ public class GameLobby : MonoBehaviour
         players.Clear();
     }
 
-    public void OnDestroy()
+    public async void OnDestroy()
     {
-        signalConnector.RemoveGameLobbyMethods();
+        await LobbyConnector.CloseConnection();
     }
 
     public void OnStart()
     {
         if (!RoomInfo.IsHost) return;
-        signalConnector.RemoveGameLobbyMethods();
-        signalConnector.StartGame();
-        SceneManager.LoadScene(1);
+        LobbyConnector.CloseConnection();
+        gameConnector.StartGame();
+        // SceneManager.LoadScene(1);
     }
 
-    public void Leave()
+    public async void Leave()
     {
-        signalConnector.RemoveGameLobbyMethods();
-
+        await gameConnector.CloseConnection();
+        await LobbyConnector.CloseConnection();
         mockHttpProvider.LeaveGameRoom(RoomInfo.Id);
-
         RoomInfo.Clear();
-
         ClearPlayers();
-
         gameObject.SetActive(false);
         onlineMenu.SetActive(true);
     }

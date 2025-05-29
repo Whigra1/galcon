@@ -1,9 +1,12 @@
 using System;
+using Network.Signal;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
 public class GameMenu : MonoBehaviour
 {
+    public GameConnectorBase signalConnector;
+    public GameHttpProviderBase gameHttpProvider;
     public GameObject menuPanel;
     private bool _isMenuOpen;
 
@@ -26,8 +29,10 @@ public class GameMenu : MonoBehaviour
         Time.timeScale = 1f;
     }
     
-    public void BackToMainMenu()
+    public async void BackToMainMenu()
     {
+        await signalConnector.CloseConnection();
+        gameHttpProvider.LeaveGameRoom(RoomInfo.Id);
         RoomInfo.Clear();
         SceneManager.LoadScene(0);
     }

@@ -23,7 +23,7 @@ public class PlanetSpawner : PlanetSpawnerBase
         var planets = new List<Planet>(planetAmount * playersAmount);
         for (var i = 0; i < Math.Min(playersAmount, spawners.Count); i++)
         {
-            var player = new Player($"Player {i + 1}", i + 1);
+            var player = new Player($"Player {i + 1}", Guid.NewGuid().ToString());
             for (var j = 0; j < planetAmount; j++)
             {
                 var validPosition = true;

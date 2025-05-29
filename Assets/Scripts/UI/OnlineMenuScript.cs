@@ -42,6 +42,7 @@ public class OnlineMenuScript : MonoBehaviour
         }
         
         var response = await mockHttpProvider.JoinGameRoom(tokenInput.text);
+        
         if (!string.IsNullOrEmpty(response.ErrorMessage) || string.IsNullOrEmpty(response.Data.RoomId))
         {
             errorText.text = response.ErrorMessage;
@@ -56,7 +57,6 @@ public class OnlineMenuScript : MonoBehaviour
         RoomInfo.Name = gameNameInput.text;
         RoomInfo.InvitatationToken = response.Data.ConnectToken;
         RoomInfo.IsHost = false;
-        
         gameObject.SetActive(false);
         gameLobby.SetActive(true);
     }

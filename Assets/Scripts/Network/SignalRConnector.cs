@@ -1,11 +1,13 @@
 using System;
 using System.Threading.Tasks;
+using EventArgs;
 using Microsoft.AspNetCore.SignalR.Client;
+using Newtonsoft.Json.Linq;
 using UnityEngine;
 
 public class SignalRConnector : SignalConnectorBase
 {
-    private HubConnection connection;
+    private static HubConnection connection;
 
     public override async Task<HubConnection> GetConnection()
     {
@@ -15,10 +17,10 @@ public class SignalRConnector : SignalConnectorBase
         }
         
         connection = new HubConnectionBuilder()
-            .WithUrl("http://localhost:5080/chatHub", options =>
+            .WithUrl("http://localhost:5000/api/hubs/game?roomId=" + RoomInfo.Id, options =>
             {
-                
-            }) // URL to the SignalR hub
+                options.Headers.Add("Authorization", "Bearer " + UserData.Token);
+            })
             .Build();
       
         try
@@ -33,30 +35,34 @@ public class SignalRConnector : SignalConnectorBase
         return connection;
     }
 
-    public override void SendShips(int fromId, int toId, int amount)
+    public override void SendShips(string fromId, string toId, float portion)
     {
-        connection.InvokeAsync("SendShips", fromId, toId, amount);
+        connection.InvokeAsync("SendFleet", new SendFleetArgs
+        {
+            DeparturePlanetId = Guid.Parse(fromId),
+            DestinationPlanetId = Guid.Parse(toId),
+            Portion = portion
+        });
+    }
+    
+    public override async void OnGameStarted(Action<object> callback)
+    {
+        connection.On("GameStarted", callback);
     }
 
-    public override void OnPlayerJoin(Action<string> callback)
+    public override void OnRoomUpdate(Action<object> callback)
     {
-        
+        connection.On("room_update", callback);
     }
 
-    public override void OnPlayerLeft(Action<int, string> callback)
+    public override void OnSendShips(Action<object> callback)
     {
+        connection.On("FleetSent", callback);
     }
 
-    public override void OnLoadGame(Action<bool> callback)
+    public override void OnPlanetProducedShips(Action<object> callback)
     {
-    }
-
-    public override void OnGameStarted(Action<bool> callback)
-    {
-    }
-
-    public override void OnSendShips(Action<int, int, int> callback)
-    {
+        connection.On("ShipsProduced", callback);
     }
 
     public override void RemoveGameLobbyMethods()
@@ -67,16 +73,15 @@ public class SignalRConnector : SignalConnectorBase
     {
     }
 
-    public override void StartGame()
+    public override async void StartGame()
     {
+        var connection = await GetConnection();
+        await connection.InvokeAsync("StartGame");
     }
 
-    public override void LeaveGame()
+    public override async Task CloseConnection()
     {
-        throw new NotImplementedException();
-    }
-
-    public override void Ready(int userId, string roomId)
-    {
+        await connection.StopAsync();
+        connection = null;
     }
 }

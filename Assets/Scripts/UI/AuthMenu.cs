@@ -28,7 +28,7 @@ public class AuthMenu : MonoBehaviour
     {
         var response = await GameHttpApiProvider.Login(login.text, password.text);
 
-        if (response.Data.Id < 0)
+        if (string.IsNullOrEmpty(response.Data.Id))
         {
             errorText.text = response.ErrorMessage;
             return;
@@ -45,7 +45,7 @@ public class AuthMenu : MonoBehaviour
     public async void OnRegister()
     {
         var response = await GameHttpApiProvider.Register(login.text, password.text);
-        if (response.Data.Id < 0)
+        if (string.IsNullOrEmpty(response.Data.Id))
         {
             errorText.text = response.ErrorMessage;
             return;

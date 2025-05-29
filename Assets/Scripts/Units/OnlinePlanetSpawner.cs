@@ -58,11 +58,11 @@ public class OnlinePlanetSpawner : PlanetSpawnerBase
         var planetGameObj = Instantiate(planetPrefab);
         var planet = planetGameObj.GetComponent<Planet>();
         var spriteRenderer = planetGameObj.GetComponent<SpriteRenderer>();
-        planet.id = planetDto.id;
+        // planet.id = planetDto.id;
         planet.transform.position = new Vector3((float) planetDto.x, (float) planetDto.y, 0);
         if (!_players.ContainsKey(planetDto.ownerId))
         {
-            _players[planetDto.ownerId] = new Player($"Player {planetDto.ownerId}", planetDto.ownerId, GetColorFromDto(planetDto));
+            _players[planetDto.ownerId] = new Player($"Player {planetDto.ownerId}", planetDto.ownerId.ToString(), GetColorFromDto(planetDto));
         }
         planet.SetSize(planetDto.size);
         planet.ownerPlayer = _players[planetDto.ownerId];

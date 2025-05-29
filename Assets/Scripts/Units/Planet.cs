@@ -26,11 +26,11 @@ public class Planet : MonoBehaviour
     public int batchSize = 30;
     public float delayBetweenBatches = 0.2f;
     public Player ownerPlayer;
-    public int id;
+    public string id;
     
     void Update()
     {
-        if (!GameState.IsGameRunning) return;
+        // if (!GameState.IsGameRunning) return;
 
         var delta = Time.deltaTime;
         GrowUpBuffer += delta * shipGrowsFactor * size;
@@ -109,9 +109,5 @@ public class Planet : MonoBehaviour
 
     private static int _id = 0;
     private static List<string> colors = new List<string> { "red", "green", "blue", "yellow", "orange" };
-    public override string ToString()
-    {
-        return
-            $"new Planet {{ Id = {_id++}, X = {transform.position.x.ToString().Replace(',', '.')}f, Y = {transform.position.y.ToString().Replace(',', '.')}f, Size = {size}, OwnerId = {ownerPlayer.id}, Color = \"{colors[ownerPlayer.id - 1]}\" }},";
-    }
+    
 }

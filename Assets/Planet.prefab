@@ -285,7 +285,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   shipsAmount: 0
-  shipGrowsFactor: 0.5
+  shipGrowsFactor: 0
   shipPrefab: {fileID: 4022078355837872944, guid: 20b07817e26bf9746a5e51b9ab37ceeb, type: 3}
   ShipAmountText: {fileID: 955708514556880942}
   size: 5
@@ -293,6 +293,7 @@ MonoBehaviour:
   minSize: 5
   batchSize: 3
   delayBetweenBatches: 0.01
+  id: 
 --- !u!222 &4407925413100514798
 CanvasRenderer:
   m_ObjectHideFlags: 0

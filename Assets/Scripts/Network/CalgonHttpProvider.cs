@@ -31,7 +31,7 @@ public class CalgonHttpProvider: GameHttpProviderBase
             {
                 Data = new UserInfoDto
                 {
-                    Id = -1,
+                    Id = "1",
                     Token = "",
                     Name = "",
                 },
@@ -42,7 +42,7 @@ public class CalgonHttpProvider: GameHttpProviderBase
         {
             Data = new UserInfoDto
             {
-                Id = -1,
+                Id = "",
                 Token = "",
                 Name = "",
             },
@@ -71,7 +71,7 @@ public class CalgonHttpProvider: GameHttpProviderBase
             {
                 Data = new UserInfoDto
                 {
-                    Id = 1,
+                    Id = "_",
                     Token = responseJson.accessToken,
                     Name = login,
                 },
@@ -82,7 +82,7 @@ public class CalgonHttpProvider: GameHttpProviderBase
         {
             Data = new UserInfoDto
             {
-                Id = -1,
+                Id = "",
                 Token = "",
                 Name = "",
             },
@@ -153,7 +153,7 @@ public class CalgonHttpProvider: GameHttpProviderBase
             {
                 RoomId = ""
             },
-            ErrorMessage = "Failed to join room",
+            ErrorMessage = request.downloadHandler.text,
         };
     }
 

@@ -1,4 +1,5 @@
 using System;
+using Network.Signal;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
@@ -9,7 +10,7 @@ public class MouseController : MonoBehaviour
     private LineRenderer _lineRenderer;
     private bool _isDrawing = false;
     
-    public SignalConnectorBase signalRConnector;
+    public GameConnectorBase signalRConnector;
     
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -31,11 +32,11 @@ public class MouseController : MonoBehaviour
             if (r.Length == 0) return;
             _clickedObject = r[0].gameObject;
             var planet1 = _clickedObject.GetComponent<Planet>();
-            if (planet1.ownerPlayer.id != UserData.Id)
-            {
-                _clickedObject = null;
-                return;
-            }
+            // if (planet1.ownerPlayer.id != UserData.Id)
+            // {
+            //     _clickedObject = null;
+            //     return;
+            // }
             _isDrawing = true;
             
             var startPoint = Camera.main.ScreenToWorldPoint(Input.mousePosition);
@@ -91,8 +92,8 @@ public class MouseController : MonoBehaviour
         }
         else 
         {
-            var amount = planet.SpawnShips(_releasedObject.transform);
-            signalRConnector.SendShips(planet.id, planet2.id, amount);
+            // var amount = planet.SpawnShips(_releasedObject.transform);
+            signalRConnector.SendShips(planet.id, planet2.id, 0.5f);
         }
         
         _clickedObject = null;

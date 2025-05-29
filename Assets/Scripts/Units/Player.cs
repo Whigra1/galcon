@@ -1,11 +1,13 @@
+using System;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 public class Player
 {
     public string Name { get; set; } = "";
-    public int id { get; private set; } = 0;
+    public string id { get; private set; } = "";
     public Color color { get; } = Random.ColorHSV();
-    public Player(string name, int userID, Color? color = null)
+    public Player(string name, string userID, Color? color = null)
     {
         id = userID;
         Name = name;
@@ -13,5 +15,10 @@ public class Player
         {
             this.color = (Color) color;
         }
-    } 
+    }
+
+    public static Player NoOne()
+    {
+        return new Player("No one", Guid.NewGuid().ToString(), Color.gray);
+    }
 }

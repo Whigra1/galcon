@@ -20,7 +20,7 @@ public class MockHttpProvider : GameHttpProviderBase, IGameHttpApiProvider
             {
                 Data = new UserInfoDto
                 {
-                    Id = id,
+                    Id = id.ToString(),
                     Token = token,
                     Name = login,
                 },
@@ -44,7 +44,7 @@ public class MockHttpProvider : GameHttpProviderBase, IGameHttpApiProvider
             {
                 Data = new UserInfoDto
                 {
-                    Id = id,
+                    Id = id.ToString(),
                     Token = token,
                     Name = login,
                 },
