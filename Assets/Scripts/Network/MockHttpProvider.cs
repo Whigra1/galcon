@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Dto;
 using Network;
 using UnityEngine;
 using Microsoft.AspNetCore.SignalR.Client;
@@ -134,6 +135,11 @@ public class MockHttpProvider : GameHttpProviderBase, IGameHttpApiProvider
         await connection.InvokeAsync("GetRoomInfo", roomId);
         
         return await taskCompletionSource.Task;
+    }
+
+    public override Task<ApiRequestResult<StatsDto>> GetMyStats()
+    {
+        throw new System.NotImplementedException();
     }
 
     public override void LeaveGameRoom(string id)

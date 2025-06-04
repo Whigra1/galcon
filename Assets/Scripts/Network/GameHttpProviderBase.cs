@@ -1,4 +1,5 @@
 ﻿using System.Threading.Tasks;
+using Dto;
 using Network;
 using UnityEngine;
 
@@ -12,6 +13,6 @@ public abstract class GameHttpProviderBase: MonoBehaviour, IGameHttpApiProvider
     public abstract Task<ApiRequestResult<GameLobbyDto>> JoinGameRoom(string token);
 
     public abstract Task<ApiRequestResult<GameLobbyDto>> GetRoomInfo(string roomId);
-
+    public abstract Task<ApiRequestResult<StatsDto>> GetMyStats();
     public abstract void LeaveGameRoom(string id);
 }

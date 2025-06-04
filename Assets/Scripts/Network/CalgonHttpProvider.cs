@@ -187,6 +187,34 @@ public class CalgonHttpProvider: GameHttpProviderBase
         };
     }
 
+    public override async Task<ApiRequestResult<StatsDto>> GetMyStats()
+    {
+        using var request = CreateRequest("/stats/me", "GET", "");
+        await request.SendWebRequest();
+        if (request.result == UnityWebRequest.Result.Success)
+        {
+            var responseJson = JsonConvert.DeserializeObject<StatsDto>(request.downloadHandler.text);
+            return new ApiRequestResult<StatsDto>
+            {
+                Data = new StatsDto
+                {
+                    totalGames = responseJson.totalGames,
+                    wonGames = responseJson.wonGames
+                },
+                ErrorMessage = "",
+            };
+        }
+        return new ApiRequestResult<StatsDto>
+        {
+            Data = new StatsDto
+            {
+                totalGames = 0,
+                wonGames = 0
+            },
+            ErrorMessage = "Failed to get stats",
+        };
+    }
+
     public override async void LeaveGameRoom(string roomId)
     {
         using var request = CreateRequest($"/leave/{roomId}", "POST", "");

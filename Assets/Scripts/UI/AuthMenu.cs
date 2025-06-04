@@ -50,11 +50,12 @@ public class AuthMenu : MonoBehaviour
             errorText.text = response.ErrorMessage;
             return;
         }
-        UserData.Id = response.Data.Id;
-        UserData.Token = response.Data.Token;
-        UserData.Name = login.text;
-        gameObject.SetActive(false);
-        MainMenu.SetActive(true);
+        OnLogin();
+        // UserData.Id = response.Data.Id;
+        // UserData.Token = response.Data.Token;
+        // UserData.Name = login.text;
+        // gameObject.SetActive(false);
+        // MainMenu.SetActive(true);
     }
 
 }
